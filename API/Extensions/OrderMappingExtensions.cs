@@ -21,7 +21,7 @@ public static class OrderMappingExtensions
             Subtotal = order.Subtotal,
             Discount = order.Discount,
             Status = order.Status.ToString(),
-            PaymentIntentId = order.PaymentIntentId,
+            PaymentReference = order.PaymentReference,
             Total = order.GetTotal()
         };
     }

@@ -3,11 +3,11 @@
   <dl>
     <dt class="font-medium">Shipping address</dt>
     <dd class="mt-1 text-gray-500 flex">
-      <span>{{confirmationToken?.shipping | address}}</span>
+      <span>{{shippingAddress | address}}</span>
     </dd>
     <dt class="font-medium">Payment details</dt>
     <dd class="mt-1 text-gray-500 flex">
-      <span>{{confirmationToken?.payment_method_preview | paymentCard}}</span>
+      <span>Payment will be securely handled by Paystack.</span>
     </dd>
   </dl>
 </div>
@@ -20,7 +20,7 @@
         <tr>
           <td class="py-4">
             <div class="flex items-center gap-4">
-              <img src="{{item.pictureUrl}}" alt="product image"
+              <img [src]="item.pictureUrl" alt="product image"
                   class="w-10 h-10">
               <span>{{ item.productName }}</span>
             </div>

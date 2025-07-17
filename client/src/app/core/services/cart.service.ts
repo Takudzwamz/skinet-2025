@@ -47,6 +47,15 @@ export class CartService {
     };
   })
 
+  async setShippingPrice(deliveryMethod: DeliveryMethod) {
+    this.selectedDelivery.set(deliveryMethod);
+    const cart = this.cart();
+    if (cart) {
+      cart.deliveryMethodId = deliveryMethod.id;
+      await firstValueFrom(this.setCart(cart));
+    }
+  }
+
   applyDiscount(code: string) {
     return this.http.get<Coupon>(this.baseUrl + 'coupons/' + code);
   }

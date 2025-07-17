@@ -32,7 +32,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
 });
 builder.Services.AddSingleton<ICartService, CartService>();
 builder.Services.AddSingleton<IResponseCacheService, ResponseCacheService>();
-
+builder.Services.AddHttpContextAccessor(); 
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddRoles<IdentityRole>()

@@ -183,7 +183,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentIntentId")
+                    b.Property<string>("PaymentReference")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -496,8 +496,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("DeliveryMethod");
 
-                    b.Navigation("PaymentSummary")
-                        .IsRequired();
+                    b.Navigation("PaymentSummary");
 
                     b.Navigation("ShippingAddress")
                         .IsRequired();

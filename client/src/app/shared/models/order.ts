@@ -10,7 +10,7 @@ export interface Order {
     subtotal: number
     discount?: number
     status: string
-    paymentIntentId: string
+    paymentReference: string 
     total: number;
   }
   
@@ -43,6 +43,6 @@ export interface Order {
     cartId: string;
     deliveryMethodId: number;
     shippingAddress: ShippingAddress;
-    paymentSummary: PaymentSummary;
+    // paymentSummary: PaymentSummary;
     discount?: number;
   }

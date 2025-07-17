@@ -1,17 +1,17 @@
 import { Component, inject, Input } from '@angular/core';
-import { CartService } from '../../../core/services/cart.service';
 import { CurrencyPipe } from '@angular/common';
-import { ConfirmationToken } from '@stripe/stripe-js';
+import { CartService } from '../../../core/services/cart.service';
 import { AddressPipe } from '../../../shared/pipes/address-pipe';
-import { PaymentCardPipe } from '../../../shared/pipes/payment-card-pipe';
+import { ShippingAddress } from '../../../shared/models/order'; // Import ShippingAddress
 
 @Component({
   selector: 'app-checkout-review',
-  imports: [CurrencyPipe, AddressPipe, PaymentCardPipe],
+  imports: [CurrencyPipe, AddressPipe],
   templateUrl: './checkout-review.component.html',
   styleUrl: './checkout-review.component.scss'
 })
 export class CheckoutReviewComponent {
   cartService = inject(CartService);
-  @Input() confirmationToken?: ConfirmationToken;
+  // Replace confirmationToken with shippingAddress
+  @Input() shippingAddress?: ShippingAddress | null;
 }

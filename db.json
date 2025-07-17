@@ -1,0 +1,412 @@
+{
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NTg0MDQzOCwic3NvTG9naW4iOmZhbHNlLCJqdGkiOiI2ODc3YTFhZDIwMzMwNzAwMjRkNTYwMmQiLCJpYXQiOjE3NTI2NzA2MzcsIm5iZiI6MTc1MjY3MDYzNywiZXhwIjoxNzUyNzU3MDM3fQ.VK28D4h37_-p3FFIvxFmI66RAovO7vdrKuqOdrUqex8",
+  "user": {
+    "integrations": [
+      {
+        "business_name": "SPUTNIK DEVS (PTY) LTD",
+        "business_type": "registered",
+        "short_name": null,
+        "id": 1317970,
+        "logged_in_user_role": {
+          "id": 34,
+          "name": "admin",
+          "description": "This role grants users the permissions to manage everything on the dashboard"
+        },
+        "country_code": "ZA",
+        "country": 3,
+        "sso_enabled": false,
+        "mfa": {
+          "is_required": false,
+          "enforcement_deadline": null
+        }
+      },
+      {
+        "business_name": "SPUTNIK TECH (PTY) LTD",
+        "business_type": "registered",
+        "short_name": null,
+        "id": 1446039,
+        "logged_in_user_role": {
+          "id": 34,
+          "name": "admin",
+          "description": "This role grants users the permissions to manage everything on the dashboard"
+        },
+        "country_code": "ZA",
+        "country": 3,
+        "sso_enabled": false,
+        "mfa": {
+          "is_required": false,
+          "enforcement_deadline": null
+        }
+      }
+    ],
+    "email": "sputnikdevs@sputnikdevs.com",
+    "first_name": "Takudzwa",
+    "last_name": "Mupanesure",
+    "phone": "663215528",
+    "area_code": "0",
+    "calling_code": "+27",
+    "registration_complete": true,
+    "last_login": "2025-07-16T12:56:56.000Z",
+    "wt_access": "none",
+    "is_developer": true,
+    "job_title": "",
+    "truecaller_verified": false,
+    "drip_tag": "merchant - south africa",
+    "created_from": null,
+    "mfa_enabled": true,
+    "email_verified": true,
+    "id": 5840438,
+    "invited_by": null,
+    "current_integration": 1317970,
+    "passwordLastResetAt": "2025-07-16T12:46:28.000Z",
+    "createdAt": "2024-11-07T07:10:47.000Z",
+    "updatedAt": "2025-07-16T12:56:56.000Z",
+    "ssoLogin": false,
+    "dashboard_preferences": {
+      "pagination": {
+        "use_cursor": true
+      },
+      "timezone": "UTC"
+    },
+    "display_state": "live",
+    "role": {
+      "value": 1829587348619263,
+      "name": "admin",
+      "description": "This role grants users the permissions to manage everything on the dashboard",
+      "integration": 0,
+      "service": "dashboard",
+      "id": 34,
+      "organization": 1,
+      "createdAt": "2018-05-10T23:40:26.000Z",
+      "updatedAt": "2018-09-12T17:28:31.000Z",
+      "is_custom": false
+    },
+    "permissions": [
+      "api-key-*",
+      "api-key-view",
+      "user-view",
+      "user-*",
+      "metrics-*",
+      "settings-*",
+      "settings-view",
+      "transaction-view",
+      "transaction-export",
+      "transaction-dispute",
+      "customer-view",
+      "customer-add",
+      "customer-*",
+      "transfer-view",
+      "transfer-*",
+      "transfer-export",
+      "balance-view",
+      "balance-export",
+      "page-view",
+      "page-*",
+      "plan-view",
+      "plan-*",
+      "settlement-view",
+      "settlement-export",
+      "paymentrequest-view",
+      "paymentrequest-*",
+      "subaccount-*",
+      "subaccount-view",
+      "user-add",
+      "customer-insights",
+      "accounts-*",
+      "accounts-view",
+      "directdebit-*",
+      "charge-*",
+      "request-payout",
+      "product-view",
+      "product-*",
+      "pos-terminal-*",
+      "applepay-*",
+      "refund-pwt",
+      "corporate-cards-*",
+      "corporate-cards-view",
+      "issuing-*",
+      "issuing-view",
+      "connect-*",
+      "directdebit-view"
+    ],
+    "show_mfa_feature": true
+  },
+  "selected_integration": {
+    "business_name": "SPUTNIK DEVS (PTY) LTD",
+    "description": "We create software platforms",
+    "rc_number": null,
+    "phone": "663215528",
+    "email": "sputnikdevs@sputnikdevs.com",
+    "address": null,
+    "product_name": null,
+    "registration_document_number": null,
+    "registration_document_type": null,
+    "primary_contact_name": null,
+    "primary_contact_email": null,
+    "primary_contact_phone": null,
+    "support_email": "sputnikdevs@sputnikdevs.com",
+    "chargeback_email": "sputnikdevs@sputnikdevs.com",
+    "logo_path": "https://public-files-paystack-prod.s3.eu-west-1.amazonaws.com/integration-logos/paystack.jpg",
+    "integration_agreement_path": null,
+    "settlement_bank": null,
+    "account_number": null,
+    "registration_document_path": null,
+    "risk_level": "high",
+    "isw_category": 3,
+    "mcc_category": "7372",
+    "flat_rate": 1,
+    "charge_percentage": 2.9,
+    "international_flat_rate": 100,
+    "international_charge_percentage": 3.9,
+    "flat_threshhold": 2500,
+    "transfer_charge": 5000,
+    "settlement_schedule": "T2",
+    "test_redirect_url": null,
+    "test_webhook_endpoint": null,
+    "live_redirect_url": null,
+    "live_webhook_endpoint": null,
+    "test_integration_url": null,
+    "test_integration_instruction": null,
+    "email_notification": "instant",
+    "pwc_id": 102501,
+    "is_live": true,
+    "go_live_requested": true,
+    "go_live_requested_at": "2024-11-07T07:40:07.000Z",
+    "live_keys_requested": false,
+    "live_keys_requested_at": null,
+    "reviewed_at": null,
+    "setup_complete": false,
+    "receipts": true,
+    "display_state": "live",
+    "active": true,
+    "short_name": null,
+    "international_toggle_disabled": false,
+    "allow_international_cards": true,
+    "active_channels": [
+      "apple_pay",
+      "card",
+      "eft",
+      "qr"
+    ],
+    "allowed_currencies": [
+      "ZAR"
+    ],
+    "allow_whitelist": false,
+    "charge_from_dashboard": false,
+    "can_transfer": true,
+    "transfer_using_otp": true,
+    "payouts_on_hold": false,
+    "go_live_date": "2024-12-18T09:51:57.000Z",
+    "payments_session_timeout": 0,
+    "metadata": {
+      "new_checkout_enabled": true
+    },
+    "transfer_notification": "instant",
+    "business_category": null,
+    "business_size": "medium",
+    "business_type": "registered",
+    "website_url": "https://sputnikdevs.com",
+    "social_urls": {
+      "twitter": null,
+      "facebook": "https://web.facebook.com/sputnikdevs",
+      "instagram": null
+    },
+    "is_under_investigation": false,
+    "is_disabled": false,
+    "disable_reason": null,
+    "disable_at": null,
+    "identity_evidence_path": null,
+    "director_identity_evidence_path": null,
+    "bvn": null,
+    "bvn_date_of_birth": null,
+    "go_live_status": "confirmed",
+    "registration_packet_path": null,
+    "default_currency": "ZAR",
+    "transfer_notification_to_recipient": "instant",
+    "send_transfer_email_otp": true,
+    "fast_checkout_enabled": false,
+    "id": 1317970,
+    "primary_user": 5840438,
+    "organization": 1,
+    "createdAt": "2024-11-07T07:10:47.000Z",
+    "updatedAt": "2024-12-22T10:56:25.000Z",
+    "transfer_fees": [
+      {
+        "fee": 300,
+        "currency": "ZAR"
+      }
+    ],
+    "consent_received": false,
+    "attributes": {
+      "id": 1217515,
+      "integration": 1317970,
+      "country": {
+        "id": 3,
+        "active_for_dashboard_onboarding": true,
+        "name": "South Africa",
+        "iso_code": "ZA",
+        "default_currency_code": "ZAR",
+        "calling_code": "+27",
+        "integration_defaults": {},
+        "pilot_mode": false,
+        "relationships": {
+          "currency": {
+            "type": "currency",
+            "data": [
+              "ZAR"
+            ],
+            "supported_currencies": {
+              "ZAR": {
+                "bank": {
+                  "bank_type": "basa",
+                  "account_verification_required": true,
+                  "account_number_label": "accountNumber",
+                  "branch_code": false,
+                  "branch_code_type": "text",
+                  "account_name": true,
+                  "account_number_pattern": {
+                    "exact_match": false,
+                    "pattern": "^[0-9]{9,12}$"
+                  },
+                  "documents": [
+                    "ZA-BANK"
+                  ],
+                  "show_account_number_tooltip": false
+                },
+                "eft": {
+                  "account_number_pattern": {
+                    "exact_match": false,
+                    "pattern": "^[0-9]{10}$"
+                  },
+                  "placeholder": "050 123 456"
+                }
+              }
+            }
+          },
+          "integration_feature": {
+            "type": "integration_feature",
+            "data": []
+          },
+          "integration_type": {
+            "type": "integration_type",
+            "data": [
+              "ITYPE_006",
+              "ITYPE_007"
+            ]
+          },
+          "payment_method": {
+            "type": "payment_method",
+            "data": [
+              "PAYM_001"
+            ]
+          }
+        }
+      },
+      "industry": null,
+      "integration_type": {
+        "id": 6,
+        "code": "ITYPE_006",
+        "label": "registered",
+        "display_name": "Registered Business",
+        "description": "Choose this if your business has a CM1, CoR 14.3 or CK1",
+        "is_active": true,
+        "relationships": {
+          "kyc_requirement": {
+            "type": "kyc_requirement",
+            "data": [
+              "KYCREQ_025",
+              "KYCREQ_037",
+              "KYCREQ_036",
+              "KYCREQ_041",
+              "KYCREQ_045"
+            ]
+          }
+        },
+        "upgradable_to": []
+      },
+      "legal_business_name": "SPUTNIK DEVS (PTY) LTD",
+      "duplicated_from_integration": null,
+      "compliance_status": "APPROVED",
+      "compliance_due_date": "2024-12-07T00:00:00.000Z",
+      "incorporation_date": null,
+      "country_code": "ZA",
+      "industry_code": "SERVICES-DIGITAL",
+      "registration_number": null,
+      "registration_type": "ZA-CIPC",
+      "ownership_type": "ZA-CIPC-OWN",
+      "industry_categories": "SOFTWARE-SERVICE",
+      "area_code": "0",
+      "calling_code": "+27",
+      "form_three_evidence_path": null,
+      "settlement_account_type": "bank_account",
+      "international_requested": false,
+      "email_rules": null,
+      "compliance_documents_submitted": true,
+      "incorporated_before_2017": 0,
+      "has_refreshed_incorporation_documents": true,
+      "process_amex_cards": false,
+      "is_terminal_integration": false,
+      "mfa_is_required": false,
+      "mfa_enforcement_deadline": null,
+      "legal_agreements": null,
+      "has_saved_cards": null,
+      "saved_cards_enabled": null,
+      "passes_fees": null,
+      "direct_debit_enabled": true,
+      "createdAt": "2024-11-07T07:10:47.000Z",
+      "updatedAt": "2025-05-07T08:40:49.000Z"
+    },
+    "terminal_integration_attribute": null,
+    "is_terminal_active": false,
+    "is_dormant": false,
+    "is_registration_type_supported_for_terminal": false,
+    "office_address": {
+      "id": 688776,
+      "street_line_one": "292 Surrey Avenue, Randburg",
+      "street_line_two": "",
+      "post_code": "2194",
+      "model": "integration",
+      "model_row": 1317970,
+      "city": "Johannesburg",
+      "state": "Gauteng",
+      "country": "South Africa",
+      "country_iso_code": "ZA",
+      "type": "office"
+    },
+    "registered_address": {
+      "id": 688777,
+      "street_line_one": "292 Surrey Avenue, Randburg",
+      "street_line_two": "",
+      "post_code": "2194",
+      "model": "integration",
+      "model_row": 1317970,
+      "city": "Johannesburg",
+      "state": "Gauteng",
+      "country": "South Africa",
+      "country_iso_code": "ZA",
+      "type": "registered"
+    },
+    "available_channels": [
+      "card",
+      "qr",
+      "apple_pay",
+      "eft"
+    ],
+    "agreements": {
+      "settlement_managed_account": {
+        "agreements": [],
+        "visible": false
+      }
+    },
+    "payouts_on_hold_reason": null,
+    "chargeback_emails": [
+      "sputnikdevs@sputnikdevs.com"
+    ],
+    "logged_in_user_role": {
+      "id": 34,
+      "name": "admin",
+      "description": "This role grants users the permissions to manage everything on the dashboard"
+    }
+  },
+  "token_expiry": 1752757037
+}

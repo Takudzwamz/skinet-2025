@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6" />
+    <PackageReference Include="Paystack.Net" Version="1.1.3" />
   </ItemGroup>
 
 </Project>

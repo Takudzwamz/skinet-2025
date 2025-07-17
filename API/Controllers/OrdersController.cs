@@ -22,7 +22,8 @@ public class OrdersController(ICartService cartService, IUnitOfWork unit) : Base
 
         if (cart == null) return BadRequest("Cart not found");
 
-        if (cart.PaymentIntentId == null) return BadRequest("No payment intent for this order");
+        // if (cart.PaymentIntentId == null) return BadRequest("No payment intent for this order");
+        if (cart.PaymentReference == null) return BadRequest("No payment reference for this order");
 
         var items = new List<OrderItem>();
 
@@ -59,8 +60,9 @@ public class OrdersController(ICartService cartService, IUnitOfWork unit) : Base
             ShippingAddress = orderDto.ShippingAddress,
             Subtotal = items.Sum(x => x.Price * x.Quantity),
             Discount = orderDto.Discount,
-            PaymentSummary = orderDto.PaymentSummary,
-            PaymentIntentId = cart.PaymentIntentId,
+            // PaymentSummary = orderDto.PaymentSummary,
+            // PaymentIntentId = cart.PaymentIntentId,
+            PaymentReference = cart.PaymentReference,
             BuyerEmail = email
         };
 

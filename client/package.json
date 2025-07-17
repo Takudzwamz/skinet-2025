@@ -31,6 +31,7 @@
     "@microsoft/signalr": "^8.0.7",
     "@stripe/stripe-js": "^7.4.0",
     "@tailwindcss/postcss": "^4.1.11",
+    "country-state-city": "^3.2.1",
     "nanoid": "^5.1.5",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.1.11",

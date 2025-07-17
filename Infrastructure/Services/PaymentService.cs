@@ -1,26 +1,34 @@
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.Extensions.Configuration;
-using Stripe;
+using PayStack.Net; // Add this using directive
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Infrastructure.Services;
 
 public class PaymentService : IPaymentService
 {
-    private readonly ICartService cartService;
-    private readonly IUnitOfWork unit;
+    private readonly ICartService _cartService;
+    private readonly IUnitOfWork _unit;
+    private readonly PayStackApi _paystackApi; // Add Paystack API client
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public PaymentService(IConfiguration config, ICartService cartService,
-        IUnitOfWork unit)
+    public PaymentService(IConfiguration config, ICartService cartService, IUnitOfWork unit, IHttpContextAccessor httpContextAccessor)
     {
-        StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
-        this.cartService = cartService;
-        this.unit = unit;
+        // Initialize Paystack API with your secret key
+        var secretKey = config["PaystackSettings:SecretKey"]
+            ?? throw new Exception("Paystack secret key not found.");
+        _paystackApi = new PayStackApi(secretKey);
+        _cartService = cartService;
+        _unit = unit;
+        _httpContextAccessor = httpContextAccessor;
+
     }
 
-    public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
+    public async Task<ShoppingCart?> CreateOrUpdatePaymentTransaction(string cartId)
     {
-        var cart = await cartService.GetCartAsync(cartId)
+        var cart = await _cartService.GetCartAsync(cartId)
             ?? throw new Exception("Cart unavailable");
 
         var shippingPrice = await GetShippingPriceAsync(cart) ?? 0;
@@ -31,77 +39,72 @@ public class PaymentService : IPaymentService
 
         if (cart.Coupon != null)
         {
-            subtotal = await ApplyDiscountAsync(cart.Coupon, subtotal);
+            subtotal = ApplyDiscount(cart.Coupon, subtotal);
         }
 
-        var total = subtotal + shippingPrice;
+        // Paystack expects the amount in the lowest currency unit (e.g., kobo, cents)
+        var totalInKobo = (subtotal + shippingPrice);
 
-        await CreateUpdatePaymentIntentAsync(cart, total);
+        var email = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
 
-        await cartService.SetCartAsync(cart);
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new Exception("User email not found. Cannot create payment transaction.");
+        }
+
+        // With Paystack, we initialize a new transaction each time.
+        var transactionRequest = new TransactionInitializeRequest
+        {
+            AmountInKobo = (int)totalInKobo,
+            Email = email, // You should get this from the logged-in user
+            Reference = Guid.NewGuid().ToString(), // Generate a unique reference
+            Currency = "ZAR" // Or any other supported currency
+        };
+
+        var transactionResponse = _paystackApi.Transactions.Initialize(transactionRequest);
+
+        if (!transactionResponse.Status)
+        {
+            throw new Exception($"Paystack transaction failed: {transactionResponse.Message}");
+        }
+
+        cart.PaymentReference = transactionResponse.Data.Reference;
+        await _cartService.SetCartAsync(cart);
 
         return cart;
     }
-    
-    public async Task<string> RefundPayment(string paymentIntentId)
+
+    public Task<string> RefundPayment(string transactionReference)
     {
-        var refundOptions = new RefundCreateOptions
-        {
-            PaymentIntent = paymentIntentId
-        };
+        var refundResponse = _paystackApi.Post<ApiResponse<object>, object>(
+            "/refund",
+            new { transaction = transactionReference }
+        );
 
-        var refundService = new RefundService();
-        var result = await refundService.CreateAsync(refundOptions);
+        var resultMessage = refundResponse.Status
+            ? "Refund initiated successfully"
+            : $"Refund failed: {refundResponse.Message}";
 
-        return result.Status;
+        return Task.FromResult(resultMessage);
     }
 
-    private async Task CreateUpdatePaymentIntentAsync(ShoppingCart cart,
-        long total)
+    // This method no longer needs to be async or call an external service
+    private long ApplyDiscount(AppCoupon appCoupon, long amount)
     {
-        var service = new PaymentIntentService();
-
-        if (string.IsNullOrEmpty(cart.PaymentIntentId))
+        // This assumes your AppCoupon has these properties.
+        // You may need to fetch coupon details from your own database if not.
+        if (appCoupon.AmountOff.HasValue)
         {
-            var options = new PaymentIntentCreateOptions
-            {
-                Amount = total,
-                Currency = "usd",
-                PaymentMethodTypes = ["card"]
-            };
-            var intent = await service.CreateAsync(options);
-            cart.PaymentIntentId = intent.Id;
-            cart.ClientSecret = intent.ClientSecret;
-        }
-        else
-        {
-            var options = new PaymentIntentUpdateOptions
-            {
-                Amount = total
-            };
-            await service.UpdateAsync(cart.PaymentIntentId, options);
-        }
-    }
-
-    private async Task<long> ApplyDiscountAsync(AppCoupon appCoupon, 
-	    long amount)
-    {
-        var couponService = new Stripe.CouponService();
-
-        var coupon = await couponService.GetAsync(appCoupon.CouponId);
-
-        if (coupon.AmountOff.HasValue)
-        {
-            amount -= (long)coupon.AmountOff * 100;
+            amount -= (long)appCoupon.AmountOff * 100;
         }
 
-        if (coupon.PercentOff.HasValue)
+        if (appCoupon.PercentOff.HasValue)
         {
-            var discount = amount * (coupon.PercentOff.Value / 100);
+            var discount = amount * (appCoupon.PercentOff.Value / 100);
             amount -= (long)discount;
         }
 
-        return amount;
+        return amount > 0 ? amount : 0;
     }
 
     private long CalculateSubtotal(ShoppingCart cart)
@@ -114,9 +117,9 @@ public class PaymentService : IPaymentService
     {
         foreach (var item in cart.Items)
         {
-            var productItem = await unit.Repository<Core.Entities.Product>()
-                .GetByIdAsync(item.ProductId) 
-	                ?? throw new Exception("Problem getting product in cart");
+            var productItem = await _unit.Repository<Product>()
+                .GetByIdAsync(item.ProductId)
+                    ?? throw new Exception("Problem getting product in cart");
 
             if (item.Price != productItem.Price)
             {
@@ -129,7 +132,7 @@ public class PaymentService : IPaymentService
     {
         if (cart.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await unit.Repository<DeliveryMethod>()
+            var deliveryMethod = await _unit.Repository<DeliveryMethod>()
                 .GetByIdAsync((int)cart.DeliveryMethodId)
                     ?? throw new Exception("Problem with delivery method");
 

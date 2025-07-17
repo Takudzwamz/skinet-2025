@@ -1,33 +1,26 @@
 import { Component, inject } from '@angular/core';
-import { CartService } from '../../../core/services/cart.service';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
+import { RouterLink } from '@angular/router';
 import { CurrencyPipe, Location } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { StripeService } from '../../../core/services/stripe.service';
-import { FormsModule } from '@angular/forms';
-import { MatIcon } from '@angular/material/icon';
+import { CartService } from '../../../core/services/cart.service';
+import { PaystackService } from '../../../core/services/paystack.service'; // Import PaystackService
 
 @Component({
   selector: 'app-order-summary',
   imports: [
-    MatFormField,
-    MatLabel,
-    MatButton,
-    RouterLink,
-    MatInput, 
-    CurrencyPipe,
-    FormsModule,
-    MatIcon
+    MatFormField, MatLabel, MatButton, RouterLink, MatInput, CurrencyPipe, FormsModule, MatIcon
   ],
   templateUrl: './order-summary.component.html',
   styleUrl: './order-summary.component.scss'
 })
 export class OrderSummaryComponent {
   cartService = inject(CartService);
-  private stripeService = inject(StripeService);
+  private paystackService = inject(PaystackService); // Inject PaystackService
   location = inject(Location);
   code?: string;
 
@@ -40,9 +33,10 @@ export class OrderSummaryComponent {
           cart.coupon = coupon;
           await firstValueFrom(this.cartService.setCart(cart));
           this.code = undefined;
-        }
-        if (this.location.path() === '/checkout') {
-          await firstValueFrom(this.stripeService.createOrUpdatePaymentIntent());
+          
+          if (this.location.path().includes('/checkout')) {
+            await firstValueFrom(this.paystackService.createOrUpdatePaymentTransaction(cart.id));
+          }
         }
       }
     });
@@ -50,11 +44,13 @@ export class OrderSummaryComponent {
 
   async removeCouponCode() {
     const cart = this.cartService.cart();
-    if (!cart) return;
-    if (cart.coupon) cart.coupon = undefined;
+    if (!cart?.coupon) return;
+    
+    cart.coupon = undefined;
     await firstValueFrom(this.cartService.setCart(cart));
-    if (this.location.path() === '/checkout') {
-      await firstValueFrom(this.stripeService.createOrUpdatePaymentIntent());
+    
+    if (this.location.path().includes('/checkout')) {
+      await firstValueFrom(this.paystackService.createOrUpdatePaymentTransaction(cart.id));
     }
   }
 }

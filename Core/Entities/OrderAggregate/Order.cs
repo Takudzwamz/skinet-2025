@@ -9,14 +9,15 @@ public class Order : BaseEntity, IDtoConvertible
     public required string BuyerEmail { get; set; }
     public ShippingAddress ShippingAddress { get; set; } = null!;
     public DeliveryMethod DeliveryMethod { get; set; } = null!;
-    public PaymentSummary PaymentSummary { get; set; } = null!;
+    public PaymentSummary? PaymentSummary { get; set; } = null!;
     public List<OrderItem> OrderItems { get; set; } = [];
     public decimal Subtotal { get; set; }
     public decimal Discount { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
-    public required string PaymentIntentId { get; set; }
+    // public required string PaymentIntentId { get; set; }
+    public required string PaymentReference { get; set; }
 
-    public decimal GetTotal() 
+    public decimal GetTotal()
     {
         return Subtotal - Discount + DeliveryMethod.Price;
     }

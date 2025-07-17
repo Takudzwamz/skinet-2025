@@ -44,15 +44,14 @@ public class AdminController(IUnitOfWork unit, IPaymentService paymentService) :
 
         if (order.Status == OrderStatus.Pending)
             return BadRequest("Payment not received for this order");
+        
+        
+        var result = await paymentService.RefundPayment(order.PaymentReference);
 
-        var result = await paymentService.RefundPayment(order.PaymentIntentId);
-
-        if (result == "succeeded")
+        if (result == "Refund initiated successfully")
         {
             order.Status = OrderStatus.Refunded;
-
             await unit.Complete();
-
             return order.ToDto();
         }
 

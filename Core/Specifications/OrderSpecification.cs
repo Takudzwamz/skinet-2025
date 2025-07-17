@@ -18,16 +18,20 @@ public class OrderSpecification : BaseSpecification<Order>
         AddInclude("DeliveryMethod");
     }
 
-    public OrderSpecification(string paymentIntentId, bool isPaymentIntent) : base(x => x.PaymentIntentId == paymentIntentId)
+   
+    
+    
+    public OrderSpecification(string paymentReference, bool isPaymentReference) 
+        : base(x => x.PaymentReference == paymentReference)
     {
         AddInclude("OrderItems");
         AddInclude("DeliveryMethod");
     }
 
      public OrderSpecification(OrderSpecParams specParams) : base(x =>
-        string.IsNullOrEmpty(specParams.Status)|| 
-            x.Status == ParseStatus(specParams.Status)
-    )
+      string.IsNullOrEmpty(specParams.Status) ||
+          x.Status == ParseStatus(specParams.Status)
+  )
     {
         AddInclude(x => x.OrderItems);
         AddInclude(x => x.DeliveryMethod);

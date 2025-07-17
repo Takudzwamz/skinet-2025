@@ -1,46 +1,38 @@
-import { Component, inject, output } from '@angular/core';
-import { CheckoutService } from '../../../core/services/checkout.service';
+import { Component, inject, Input, OnInit } from '@angular/core';
+import { CurrencyPipe, CommonModule } from '@angular/common';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatRadioModule } from "@angular/material/radio";
-import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../../core/services/cart.service';
+import { CheckoutService } from '../../../core/services/checkout.service';
 import { DeliveryMethod } from '../../../shared/models/deliveryMethod';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-checkout-delivery',
-  imports: [
-    MatRadioModule,
-    CurrencyPipe
-  ],
+  standalone: true,
+  imports: [ CommonModule, MatRadioModule, CurrencyPipe, ReactiveFormsModule ],
   templateUrl: './checkout-delivery.component.html',
   styleUrl: './checkout-delivery.component.scss'
 })
-export class CheckoutDeliveryComponent {
+export class CheckoutDeliveryComponent implements OnInit {
+  @Input() checkoutForm?: FormGroup;
   checkoutService = inject(CheckoutService);
   cartService = inject(CartService);
-  deliveryComplete = output<boolean>();
+  deliveryMethods: DeliveryMethod[] = [];
+
+  // Add this getter for type safety
+  get deliveryForm(): FormGroup {
+    return this.checkoutForm?.get('deliveryForm') as FormGroup;
+  }
 
   ngOnInit() {
     this.checkoutService.getDeliveryMethods().subscribe({
       next: methods => {
-        if (this.cartService.cart()?.deliveryMethodId) {
-          const method = methods.find(d => d.id === this.cartService.cart()?.deliveryMethodId);
-          if (method) {
-            this.cartService.selectedDelivery.set(method);
-            this.deliveryComplete.emit(true);
-          }
-        }
+        this.deliveryMethods = methods;
       }
-    })
+    });
   }
 
-  async updateDeliveryMethod(dm: DeliveryMethod) {
-    this.cartService.selectedDelivery.set(dm);
-    const cart = this.cartService.cart();
-    if (cart) {
-      cart.deliveryMethodId = dm.id;
-      await firstValueFrom(this.cartService.setCart(cart));
-      this.deliveryComplete.emit(true);
-    };
+  async setShippingPrice(deliveryMethod: DeliveryMethod) {
+    await this.cartService.setShippingPrice(deliveryMethod);
   }
 }
