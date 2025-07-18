@@ -3,7 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatStepperModule } from "@angular/material/stepper";
+import { MatStepper, MatStepperModule } from "@angular/material/stepper";
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AccountService } from '../../core/services/account.service';
@@ -87,30 +87,25 @@ export class CheckoutComponent implements OnInit {
     this.countries = Country.getAllCountries();
   }
 
-  /* populateAddressForm() {
+
+
+  populateAddressForm() {
     const user = this.accountService.currentUser();
     if (user?.address) {
+      // 1. Set the form values with the saved address
       this.addressForm.patchValue(user.address);
-    }
-  } */
 
-    populateAddressForm() {
-  const user = this.accountService.currentUser();
-  if (user?.address) {
-    // 1. Set the form values with the saved address
-    this.addressForm.patchValue(user.address);
-
-    // 2. Manually populate the states and cities based on the saved address
-    const countryCode = this.addressForm.get('country')?.value;
-    if (countryCode) {
-      this.states = State.getStatesOfCountry(countryCode);
-      const stateCode = this.addressForm.get('state')?.value;
-      if (stateCode) {
-        this.cities = City.getCitiesOfState(countryCode, stateCode);
+      // 2. Manually populate the states and cities based on the saved address
+      const countryCode = this.addressForm.get('country')?.value;
+      if (countryCode) {
+        this.states = State.getStatesOfCountry(countryCode);
+        const stateCode = this.addressForm.get('state')?.value;
+        if (stateCode) {
+          this.cities = City.getCitiesOfState(countryCode, stateCode);
+        }
       }
     }
   }
-}
 
   // --- EVENT HANDLERS for dropdowns ---
   onCountryChange(countryCode: string): void {
@@ -127,69 +122,84 @@ export class CheckoutComponent implements OnInit {
     this.addressForm.get('city')?.setValue('');
   }
 
-  async submitOrder() {
+  // --- SUBMIT ORDER METHOD ---
+  async submitOrder(stepper: MatStepper) {
     this.loading = true;
-    // Use a local constant for the cart at the start of the operation
     const currentCart = this.cartService.cart();
     const user = this.accountService.currentUser();
     const totals = this.cartService.totals();
 
     if (!currentCart || !user || !totals) {
-      this.snackbar.error('Cannot proceed, please try again');
-      this.loading = false;
+      this.handleError('Cannot proceed, please try again.', stepper);
       return;
     }
 
     try {
-
-
+      // Save address if checked
       if (this.addressForm.get('saveAddress')?.value) {
-        // The address object is the value of the form
         const addressToSave = this.addressForm.value;
-        // We don't need to save the 'saveAddress' boolean itself
         delete addressToSave.saveAddress;
         await firstValueFrom(this.accountService.updateAddress(addressToSave));
       }
 
-
+      // Initialize payment to get reference
       const updatedCart = await firstValueFrom(
         this.paystackService.createOrUpdatePaymentTransaction(currentCart.id)
       );
-
-      // ✅ DEBUG: Add this console log to inspect the data
-      console.log('Received from backend:', updatedCart);
-
-      // 2. UPDATE the shared signal in the CartService with the new cart data.
-      // This is the critical step that was missing.
       this.cartService.cart.set(updatedCart);
 
-      // 3. Now, create the order model. It will read the updated cart from the service.
+      // Create the order first to check stock
       const orderToCreateModel = this.createOrderModel();
       const orderResult = await firstValueFrom(this.orderService.createOrder(orderToCreateModel));
 
-      if (!orderResult || !orderResult.paymentReference) {
-        throw new Error('Could not create order');
+      if (!orderResult) {
+        throw new Error('Order creation failed');
       }
 
-      // The rest of your logic remains the same
+      // Proceed with payment after successful order creation
       this.paystackService.payWithPaystack({
         email: user.email,
         amount: totals.total,
         ref: orderResult.paymentReference,
-        onSuccess: async () => {
-          this.orderService.orderComplete = true;
-          this.cartService.deleteCart();
-          this.router.navigateByUrl('/checkout/success');
+        onSuccess: () => {
+          this.handleOrderSuccess();
         },
         onClose: () => {
-          this.snackbar.info('Payment window closed');
+          this.snackbar.info('Payment window closed. Your order is pending payment.');
           this.loading = false;
         }
       });
     } catch (error: any) {
-      this.snackbar.error(error.error?.message || error.message || 'An error occurred');
-      this.loading = false;
+      // The backend error for insufficient stock will be caught and displayed here
+      this.handleError(error.error?.message || error.message || 'An error occurred', stepper);
+    } finally {
+      // We don't set loading to false here because the Paystack modal is now open
     }
+  }
+
+  // --- NEW HELPER METHODS ---
+  private handleOrderSuccess(): void {
+    this.orderService.orderComplete = true;
+    this.cartService.deleteCart();
+    this.router.navigateByUrl('/checkout/success');
+  }
+
+  private handleError(error: any, stepper: MatStepper): void {
+    // --- CHANGE THIS ---
+    const errorMessage = error.message || 'An error occurred';
+    this.snackbar.error(errorMessage);
+
+    // Check if the error object has our out-of-stock data
+    if (error.productId && error.quantityInStock !== undefined) {
+      // If it's a stock error, redirect the user to their cart
+      this.router.navigateByUrl('/cart');
+    } else {
+      // For any other error, just go back one step
+      stepper.previous();
+    }
+
+    this.loading = false;
+    // -------------------
   }
 
   // Your createOrderModel() function is mostly correct, but it relies on a cart
@@ -205,12 +215,7 @@ export class CheckoutComponent implements OnInit {
 
     // Make sure the payment reference exists on the cart before creating the order
     if (!cart.paymentReference) {
-      // This shouldn't happen if your checkout flow is correct, but it's a good safeguard.
-      // You might need to call `this.paystackService.createOrUpdatePaymentTransaction(cart.id)`
-      // earlier in your component lifecycle if `cart.paymentReference` is not yet set.
-      // Based on your original code, this reference is created just before payment,
-      // so we need to adjust that.
-      // Let's assume you call createOrUpdatePaymentTransaction before submitOrder is called.
+
       throw new Error('Payment reference not found on cart');
     }
 

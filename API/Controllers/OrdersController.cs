@@ -1,6 +1,7 @@
 using System;
 using API.DTOs;
 using API.Extensions;
+using API.RequestHelpers;
 using Core.Entities;
 using Core.Entities.OrderAggregate;
 using Core.Interfaces;
@@ -13,6 +14,7 @@ namespace API.Controllers;
 [Authorize]
 public class OrdersController(ICartService cartService, IUnitOfWork unit) : BaseApiController
 {
+    [InvalidateCache("api/products|")]
     [HttpPost]
     public async Task<ActionResult<Order>> CreateOrder(CreateOrderDto orderDto)
     {
@@ -32,6 +34,19 @@ public class OrdersController(ICartService cartService, IUnitOfWork unit) : Base
             var productItem = await unit.Repository<Product>().GetByIdAsync(item.ProductId);
 
             if (productItem == null) return BadRequest("Problem with the order");
+
+            if (productItem.QuantityInStock < item.Quantity)
+            {
+                return BadRequest(new
+                {
+                    message = $"Not enough stock for {item.ProductName}",
+                    productId = item.ProductId,
+                    quantityInStock = productItem.QuantityInStock
+                });
+            }
+
+            // Reduce the stock by the ordered quantity
+            productItem.QuantityInStock -= item.Quantity;
 
             var itemOrdered = new ProductItemOrdered
             {
@@ -60,8 +75,6 @@ public class OrdersController(ICartService cartService, IUnitOfWork unit) : Base
             ShippingAddress = orderDto.ShippingAddress,
             Subtotal = items.Sum(x => x.Price * x.Quantity),
             Discount = orderDto.Discount,
-            // PaymentSummary = orderDto.PaymentSummary,
-            // PaymentIntentId = cart.PaymentIntentId,
             PaymentReference = cart.PaymentReference,
             BuyerEmail = email
         };

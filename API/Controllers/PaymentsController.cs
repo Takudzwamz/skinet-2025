@@ -59,6 +59,10 @@ public class PaymentsController(IPaymentService paymentService,
         {
             await HandleChargeSuccess(eventData);
         }
+        else if (eventType == "charge.failed" && eventData != null)
+        {
+            await HandleChargeFailed(eventData);
+        }
 
         return Ok();
     }
@@ -126,6 +130,44 @@ public class PaymentsController(IPaymentService paymentService,
         {
             await hubContext.Clients.Client(connectionId).SendAsync("OrderCompleteNotification", order.ToDto());
         }
+    }
+    private async Task HandleChargeFailed(JToken eventData)
+    {
+        var reference = eventData["reference"]?.ToString();
+        if (string.IsNullOrEmpty(reference))
+        {
+            logger.LogError("Paystack webhook 'charge.failed' event is missing a reference.");
+            return;
+        }
+
+        // 1. Find the order that was created with 'Pending' status
+        var spec = new OrderSpecification(reference, true);
+        var order = await unit.Repository<Order>().GetEntityWithSpec(spec);
+
+        if (order == null)
+        {
+            // This can happen if the webhook arrives before the order is created, though less likely for failed events.
+            logger.LogError("Order with PaymentReference {Reference} not found for failed charge.", reference);
+            return;
+        }
+
+        // 2. Restore the stock for each item in the failed order
+        foreach (var item in order.OrderItems)
+        {
+            var productItem = await unit.Repository<Product>().GetByIdAsync(item.ItemOrdered.ProductId);
+            if (productItem != null)
+            {
+                productItem.QuantityInStock += item.Quantity;
+            }
+        }
+
+        // 3. Update the order status to 'PaymentFailed'
+        order.Status = OrderStatus.PaymentFailed;
+
+        // 4. Save the changes to the database (both stock and order status)
+        await unit.Complete();
+
+        logger.LogInformation("Stock restored and order status updated to PaymentFailed for order with reference {Reference}", reference);
     }
 
     private static string ComputeSha512Hash(string text, string key)

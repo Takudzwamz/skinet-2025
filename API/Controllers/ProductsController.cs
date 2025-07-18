@@ -11,7 +11,7 @@ public class ProductsController(IUnitOfWork unit) : BaseApiController
 {
     [Cached(100000)]
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery]ProductSpecParams productParams)
+    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams productParams)
     {
         var spec = new ProductSpecification(productParams);
 
@@ -40,7 +40,8 @@ public class ProductsController(IUnitOfWork unit) : BaseApiController
         if (await unit.Complete())
         {
             return CreatedAtAction("GetProduct", new { id = product.Id }, product);
-        };
+        }
+        ;
 
         return BadRequest("Problem creating product");
     }
@@ -57,7 +58,8 @@ public class ProductsController(IUnitOfWork unit) : BaseApiController
         if (await unit.Complete())
         {
             return NoContent();
-        };
+        }
+        ;
 
         return BadRequest("Problem updating the product");
     }
@@ -76,9 +78,34 @@ public class ProductsController(IUnitOfWork unit) : BaseApiController
         if (await unit.Complete())
         {
             return NoContent();
-        };
+        }
+        ;
 
         return BadRequest("Problem deleting the product");
+    }
+
+    [InvalidateCache("api/products|")]
+    [Authorize(Roles = "Admin")]
+    [HttpPut("update-stock/{productId}")]
+    public async Task<ActionResult> UpdateStock(int productId, [FromBody] int newQuantity)
+    {
+        var productItem = await unit.Repository<Product>().GetByIdAsync(productId);
+
+        if (productItem == null)
+        {
+            return NotFound("Product not found");
+        }
+
+        productItem.QuantityInStock = newQuantity;
+
+        unit.Repository<Product>().Update(productItem);
+
+        if (await unit.Complete())
+        {
+            return Ok();
+        }
+
+        return BadRequest("Problem updating stock");
     }
 
     [Cached(100000)]
@@ -89,7 +116,7 @@ public class ProductsController(IUnitOfWork unit) : BaseApiController
 
         return Ok(await unit.Repository<Product>().ListAsync(spec));
     }
-    
+
     [Cached(100000)]
     [HttpGet("types")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
@@ -98,7 +125,7 @@ public class ProductsController(IUnitOfWork unit) : BaseApiController
 
         return Ok(await unit.Repository<Product>().ListAsync(spec));
     }
-    
+
     private bool ProductExists(int id)
     {
         return unit.Repository<Product>().Exists(id);
